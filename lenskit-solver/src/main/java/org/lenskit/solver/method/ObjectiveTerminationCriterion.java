@@ -36,11 +36,12 @@ public class ObjectiveTerminationCriterion {
     }
 
     public boolean keepIterate() {
-        if (curIter < 2) {
+        if (curIter < 3) {
             return true;
         } else if (curIter >= maxIter) {
             return false;
-        } else if (objHistory.get(curIter - 2) - objHistory.get(curIter - 1) < tol) {
+        } else if ((objHistory.get(curIter - 2) - objHistory.get(curIter - 1) < tol) &&
+                (objHistory.get(curIter - 3) - objHistory.get(curIter - 2) < tol)) {
             return false;
         } else {
             return true;
