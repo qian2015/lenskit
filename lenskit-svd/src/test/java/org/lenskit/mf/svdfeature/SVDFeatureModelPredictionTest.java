@@ -12,9 +12,11 @@ import static org.junit.Assert.assertThat;
 public class SVDFeatureModelPredictionTest {
     @Test
     public void predictionTest() throws IOException, ClassNotFoundException {
-        String testFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat.te";
-        String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat.te.pred";
-        String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat.model";
+        String testFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/cand11-clkrat.svdfea";
+        //String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-exacthmm.pred";
+        String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-estexact.pred";
+        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.exact.hmm.model";
+        String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.est.exact.hmm.model";
 
         ObjectInputStream fin = new ObjectInputStream(new FileInputStream(modelFile));
         SVDFeatureModel model = (SVDFeatureModel)(fin.readObject());

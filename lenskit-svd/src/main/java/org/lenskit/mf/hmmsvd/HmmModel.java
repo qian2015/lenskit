@@ -7,17 +7,13 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.stat.StatUtils;
-import org.lenskit.mf.svdfeature.SVDFeatureInstance;
 import org.lenskit.solver.objective.LearningInstance;
 import org.lenskit.solver.objective.LearningModel;
 import org.lenskit.solver.objective.RandomInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -39,9 +35,18 @@ public class HmmModel extends LearningModel {
     private transient ArrayList<RealVector> emitUpdate;
     private transient static Logger logger = LoggerFactory.getLogger(HmmModel.class);
 
-    public HmmModel(int inNumPos, HmmSVDFeatureInstanceDAO inDao) throws IOException {
-        dao = inDao;
+    public HmmModel(int inNumPos) throws IOException {
         numPos = inNumPos;
+        startObj = 0.0;
+        transObj = 0.0;
+        obsObj = 0.0;
+    }
+
+    public void setInstanceDAO(HmmSVDFeatureInstanceDAO inDao) {
+        dao = inDao;
+    }
+
+    public void assignUpdateVariables() {
         startUpdate = MatrixUtils.createRealVector(new double[numPos]);
         transUpdate = new ArrayList<>(numPos);
         emitUpdate = new ArrayList<>(numPos);
@@ -49,9 +54,54 @@ public class HmmModel extends LearningModel {
             transUpdate.add(MatrixUtils.createRealVector(new double[numPos]));
             emitUpdate.add(MatrixUtils.createRealVector(new double[numPos + 1]));
         }
-        startObj = 0.0;
-        transObj = 0.0;
-        obsObj = 0.0;
+    }
+
+    public void loadFromTextFile(File modelFile) {
+        try {
+            double small = 10e-6;
+            BufferedReader reader = new BufferedReader(new FileReader(modelFile));
+            String line = reader.readLine();
+            numPos = Integer.parseInt(line);
+            start = MatrixUtils.createRealVector(new double[numPos]);
+            line = reader.readLine();
+            String[] fields = line.split(" ");
+            for (int i=0; i<numPos; i++) {
+                double val = Double.parseDouble(fields[i]);
+                if (val == 0.0) {
+                    val = small;
+                }
+                start.setEntry(i, val);
+            }
+            trans = MatrixUtils.createRealMatrix(numPos, numPos);
+            for (int i=0; i<numPos; i++) {
+                line = reader.readLine();
+                fields = line.split(" ");
+                for (int j=0; j<numPos; j++) {
+                    double val = Double.parseDouble(fields[j]);
+                    if (val == 0.0) {
+                        val = small;
+                    }
+                    trans.setEntry(i, j, val);
+                }
+            }
+            emit = MatrixUtils.createRealMatrix(numPos, numPos + 1);
+            for (int i=0; i<numPos; i++) {
+                line = reader.readLine();
+                fields = line.split(" ");
+                for (int j=0; j<numPos+1; j++) {
+                    double val = Double.parseDouble(fields[j]);
+                    if (val == 0.0) {
+                        val = small;
+                    }
+                    emit.setEntry(i, j, val);
+                }
+            }
+            reader.close();
+            assignUpdateVariables();
+            logger.debug("{}", start);
+            logger.debug("{}", trans);
+            logger.debug("{}", emit);
+        } catch (IOException e) {}
     }
 
     public void assignVariables() {
@@ -62,17 +112,7 @@ public class HmmModel extends LearningModel {
         randInit.randInitVector(start, true);
         randInit.randInitMatrix(trans, true);
         randInit.randInitMatrix(emit, true);
-        /*
-        start.set(1.0 / numPos);
-        RealVector tvec = trans.getRowVector(0);
-        tvec.set(1.0 / numPos);
-        RealVector evec = emit.getRowVector(0);
-        evec.set(1.0 / (numPos + 1));
-        for (int i=0; i<numPos; i++) {
-            trans.setRowVector(i, tvec);
-            emit.setRowVector(i, evec);
-        }
-        */
+        assignUpdateVariables();
         logger.debug("{}", start);
         logger.debug("{}", trans);
         logger.debug("{}", emit);

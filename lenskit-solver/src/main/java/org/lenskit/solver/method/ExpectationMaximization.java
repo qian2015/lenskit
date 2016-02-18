@@ -13,7 +13,7 @@ public class ExpectationMaximization implements OptimizationMethod {
     private OptimizationMethod method;
     
     public ExpectationMaximization() {
-        maxIter = 50;
+        maxIter = 25;
         tol = 1.0;
         method = new StochasticGradientDescent(3, 0.0, 0.01, 10);
     }

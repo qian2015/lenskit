@@ -1,5 +1,6 @@
 package org.lenskit.mf.hmmsvd;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.lenskit.solver.method.ExpectationMaximization;
@@ -17,7 +18,8 @@ public class HmmModelBuilder {
 
     public HmmModelBuilder(int numPos, HmmSVDFeatureInstanceDAO dao) {
         try {
-            model = new HmmModel(numPos, dao);
+            model = new HmmModel(numPos);
+            model.setInstanceDAO(dao);
             method = new ExpectationMaximization();
             loss = new LogisticLoss();
         } catch (IOException e) {}
@@ -25,6 +27,12 @@ public class HmmModelBuilder {
 
     public HmmModel build() throws IOException {
         model.assignVariables();
+        method.minimize(model, loss);
+        return model;
+    }
+
+    public HmmModel build(File modelFile) {
+        model.loadFromTextFile(modelFile);
         method.minimize(model, loss);
         return model;
     }
