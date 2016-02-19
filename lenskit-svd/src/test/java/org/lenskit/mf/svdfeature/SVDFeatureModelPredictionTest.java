@@ -14,9 +14,11 @@ public class SVDFeatureModelPredictionTest {
     public void predictionTest() throws IOException, ClassNotFoundException {
         String testFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/cand11-clkrat.svdfea";
         //String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-exacthmm.pred";
-        String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-estexact.pred";
+        //String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-estexact.pred";
+        String predFile = "/opt/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-clkrat-estmerge.pred";
         //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.exact.hmm.model";
-        String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.est.exact.hmm.model";
+        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.est.exact.hmm.model";
+        String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/svdfea11-withlab-clkrat.est.merge.hmm.model";
 
         ObjectInputStream fin = new ObjectInputStream(new FileInputStream(modelFile));
         SVDFeatureModel model = (SVDFeatureModel)(fin.readObject());
