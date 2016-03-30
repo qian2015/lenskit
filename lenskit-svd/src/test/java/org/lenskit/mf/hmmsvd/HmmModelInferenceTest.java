@@ -16,10 +16,17 @@ import java.util.ArrayList;
 public class HmmModelInferenceTest {
     @Test
     public void testModelInference() throws ClassNotFoundException, IOException {
+        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/explore11-withlab-clkrat-feas.hmm.tr.exact.hmm";
         //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/explore11-withlab-clkrat-feas.hmm.tr.merge.hmm";
+        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmm11-withlab-clkrat.est.exact.model";
         String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmm11-withlab-clkrat.est.merge.model";
+
         String testFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te";
-        String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.pred";
+
+        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.exact.hmm.pred";
+        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.merge.hmm.pred";
+        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.est.exact.hmm.pred";
+        String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.est.merge.hmm.pred";
 
         ObjectInputStream fin = new ObjectInputStream(new FileInputStream(modelFile));
         HmmModel model = (HmmModel)(fin.readObject());
