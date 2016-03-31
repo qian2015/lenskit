@@ -16,46 +16,46 @@ import java.util.ArrayList;
 public class HmmModelInferenceTest {
     @Test
     public void testModelInference() throws ClassNotFoundException, IOException {
-        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/explore11-withlab-clkrat-feas.hmm.tr.exact.hmm";
-        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/explore11-withlab-clkrat-feas.hmm.tr.merge.hmm";
-        //String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmm11-withlab-clkrat.est.exact.model";
-        String modelFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmm11-withlab-clkrat.est.merge.model";
+        String[] models = {"explore11-withlab-clkrat-feas.hmm.tr.exact.hmm", "explore11-withlab-clkrat-feas.hmm.tr.merge.hmm"};
+        //String[] models = {"hmm11-withlab-clkrat.est.exact.model", "hmm11-withlab-clkrat.est.merge.model"};
+        String basePath = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/";
+        for (String modelName : models) {
+            String[] tests = {"1", "2", "3", "4", "5"};
+            for (String test : tests) {
+                String modelFile = basePath + modelName;
+                String testFile = basePath + "hmmsvd11-withlab-clkrat.te" + test;
+                String predFile = basePath + modelName + ".pred" + test;
 
-        String testFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te";
+                ObjectInputStream fin = new ObjectInputStream(new FileInputStream(modelFile));
+                HmmModel model = (HmmModel) (fin.readObject());
 
-        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.exact.hmm.pred";
-        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.merge.hmm.pred";
-        //String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.est.exact.hmm.pred";
-        String predFile = "/home/qian/Study/pyml/NoisyNegativeImplicitFeedback/data/hmmsvd11-withlab-clkrat.te.est.merge.hmm.pred";
+                //HmmModel model = new HmmModel(24);
+                //model.loadFromTextFile(new File(modelFile));
 
-        ObjectInputStream fin = new ObjectInputStream(new FileInputStream(modelFile));
-        HmmModel model = (HmmModel)(fin.readObject());
-
-        //HmmModel model = new HmmModel(24);
-        //model.loadFromTextFile(new File(modelFile));
-
-        HmmSVDFeatureInstanceDAO teDao = new HmmSVDFeatureInstanceDAO(new File(testFile), " ");
-        BufferedWriter fout = new BufferedWriter(new FileWriter(predFile));
-        HmmSVDFeatureInstance ins = teDao.getNextInstance();
-        while(ins != null) {
-            ArrayList<RealVector> gamma = new ArrayList<>(ins.numObs);
-            ArrayList<ArrayList<RealVector>> xi = new ArrayList<>(ins.numObs - 1);
-            ArrayList<RealVector> probX = new ArrayList<>(ins.numObs);
-            model.inference(ins, gamma, xi, probX);
-            RealVector sumVec = MatrixUtils.createRealVector(new double[ins.numPos]);
-            for (int i=0; i<ins.numObs; i++) {
-                sumVec.combineToSelf(1.0, 1.0, gamma.get(i));
+                HmmSVDFeatureInstanceDAO teDao = new HmmSVDFeatureInstanceDAO(new File(testFile), " ");
+                BufferedWriter fout = new BufferedWriter(new FileWriter(predFile));
+                HmmSVDFeatureInstance ins = teDao.getNextInstance();
+                while (ins != null) {
+                    ArrayList<RealVector> gamma = new ArrayList<>(ins.numObs);
+                    ArrayList<ArrayList<RealVector>> xi = new ArrayList<>(ins.numObs - 1);
+                    ArrayList<RealVector> probX = new ArrayList<>(ins.numObs);
+                    model.inference(ins, gamma, xi, probX);
+                    RealVector sumVec = MatrixUtils.createRealVector(new double[ins.numPos]);
+                    for (int i = 0; i < ins.numObs; i++) {
+                        sumVec.combineToSelf(1.0, 1.0, gamma.get(i));
+                    }
+                    double sum = StatUtils.sum(((ArrayRealVector) sumVec).getDataRef());
+                    String[] line1 = new String[ins.numPos];
+                    String[] line2 = new String[ins.numPos];
+                    for (int i = 0; i < ins.numPos; i++) {
+                        line1[i] = Double.toString(ins.numObs * sumVec.getEntry(i) / sum);
+                        line2[i] = Double.toString(sumVec.getEntry(i));
+                    }
+                    fout.write(StringUtils.join(line1, " ") + ":" + StringUtils.join(line2, " ") + "\n");
+                    ins = teDao.getNextInstance();
+                }
+                fout.close();
             }
-            double sum = StatUtils.sum(((ArrayRealVector)sumVec).getDataRef());
-            String[] line1 = new String[ins.numPos];
-            String[] line2 = new String[ins.numPos];
-            for (int i=0; i<ins.numPos; i++) {
-                line1[i] = Double.toString(ins.numObs * sumVec.getEntry(i) / sum);
-                line2[i] = Double.toString(sumVec.getEntry(i));
-            }
-            fout.write(StringUtils.join(line1, " ") + ":" + StringUtils.join(line2, " ") + "\n");
-            ins = teDao.getNextInstance();
         }
-        fout.close();
     }
 }
